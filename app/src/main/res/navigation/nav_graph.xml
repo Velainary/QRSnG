@@ -19,4 +19,10 @@
         android:id="@+id/scanFragment"
         android:name="com.example.qrsng.ScanFragment"
         android:label="Scan" />
+
+    <fragment
+        android:id="@+id/generateFragment"
+        android:name="com.example.qrsng.GenerateFragment"
+        android:label="Generate QR" />
+
 </navigation>

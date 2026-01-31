@@ -1,93 +1,108 @@
 package com.example.qrsng
 
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.Log
 import android.view.View
-import android.view.ViewGroup
+import android.widget.TextView
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.example.qrsng.databinding.FragmentScanBinding
-import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import androidx.core.net.toUri
 
-@OptIn(ExperimentalGetImage::class)
-class ScanFragment : Fragment() {
+class ScanFragment : Fragment(R.layout.fragment_scan) {
 
-    private var _binding: FragmentScanBinding? = null
-    private val binding get() = _binding!!
-
-    private val cameraExecutor = Executors.newSingleThreadExecutor()
-
-    private var isScanning = true
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentScanBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    private lateinit var previewView: PreviewView
+    private lateinit var cameraExecutor: ExecutorService
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        startCamera()
+
+        previewView = view.findViewById(R.id.previewView)
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
+        startCamera(view)
+    }
+    private fun handleResult(text: String, textView: TextView) {
+        textView.text = text
+
+        if (text.startsWith("http://") || text.startsWith("https://")) {
+            textView.setOnLongClickListener {
+                val clipboard = requireContext()
+                    .getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                        as android.content.ClipboardManager
+
+                clipboard.setPrimaryClip(
+                    android.content.ClipData.newPlainText("QR Code", text)
+                )
+
+                android.widget.Toast.makeText(
+                    requireContext(),
+                    "Copied to clipboard",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+
+                true
+            }
+        }
     }
 
-    @androidx.annotation.OptIn(ExperimentalGetImage::class)
-    private fun startCamera() {
+    private fun startCamera(rootView: View) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
 
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
 
-            val preview = Preview.Builder().build().apply {
-                surfaceProvider = binding.previewView.surfaceProvider
+            val preview = Preview.Builder().build().also {
+                it.surfaceProvider = previewView.surfaceProvider
             }
-
-            val options = BarcodeScannerOptions.Builder()
-                .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-                .build()
-
-            val scanner = BarcodeScanning.getClient(options)
 
             val analysis = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()
 
-            analysis.setAnalyzer(cameraExecutor) { imageProxy ->
+            val scanner = BarcodeScanning.getClient()
+
+            analysis.setAnalyzer(
+                cameraExecutor
+            ) @ExperimentalGetImage
+            { imageProxy ->
+
                 val mediaImage = imageProxy.image
-                if (mediaImage != null) {
-                    val image = InputImage.fromMediaImage(
-                        mediaImage,
-                        imageProxy.imageInfo.rotationDegrees
-                    )
-
-                    scanner.process(image)
-                        .addOnSuccessListener { barcodes ->
-                            barcodes.firstOrNull()?.rawValue?.let { result ->
-                                if (!isScanning) return@addOnSuccessListener
-
-                                isScanning = false
-
-                                requireActivity().runOnUiThread {
-                                    binding.resultText.text = result
-                                    binding.resultText.visibility = View.VISIBLE
-                                }
-                            }
-
-                        }
-                        .addOnCompleteListener {
-                            imageProxy.close()
-                        }
-                } else {
+                if (mediaImage == null) {
                     imageProxy.close()
+                    return@setAnalyzer
                 }
+
+                Log.d("ScanFragment", "FRAME RECEIVED")
+
+                val image = InputImage.fromMediaImage(
+                    mediaImage,
+                    imageProxy.imageInfo.rotationDegrees
+                )
+
+                scanner.process(image)
+                    .addOnSuccessListener { barcodes ->
+                        if (barcodes.isNotEmpty()) {
+                            val value = barcodes[0].rawValue ?: "Unknown"
+
+                            Log.d("ScanFragment", "QR FOUND: $value")
+
+                            handleResult(
+                                value,
+                                rootView.findViewById(R.id.resultText)
+                            )
+                            cameraProvider.unbindAll()
+                        }
+                    }
+                    .addOnCompleteListener {
+                        imageProxy.close()
+                    }
             }
 
             cameraProvider.unbindAll()
@@ -104,6 +119,5 @@ class ScanFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         cameraExecutor.shutdown()
-        _binding = null
     }
 }
