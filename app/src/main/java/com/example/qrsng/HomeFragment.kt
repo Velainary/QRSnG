@@ -3,8 +3,8 @@ package com.example.qrsng
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import com.example.qrsng.databinding.FragmentHomeBinding
 import androidx.navigation.fragment.findNavController
+import com.example.qrsng.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -16,11 +16,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         _binding = FragmentHomeBinding.bind(view)
 
-        // Button wiring will go here next
         binding.btnScan.setOnClickListener {
-            findNavController().navigate(R.id.action_home_to_scan)
+            findNavController()
+                .navigate(R.id.action_home_to_scan)
         }
 
+        binding.btnGenerate.setOnClickListener {
+            findNavController()
+                .navigate(R.id.action_home_to_generate)
+        }
     }
 
     override fun onDestroyView() {
