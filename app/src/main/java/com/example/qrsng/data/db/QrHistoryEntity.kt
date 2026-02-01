@@ -5,9 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "qr_history")
 data class QrHistoryEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val content: String,
     val type: String, // "SCAN" or "GENERATE"
-    val timestamp: Long
+    val timestamp: Long = System.currentTimeMillis()
 )
