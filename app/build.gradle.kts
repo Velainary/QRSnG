@@ -66,4 +66,8 @@ dependencies {
     implementation(libs.androidx.concurrent.futures.ktx)
 
     implementation(libs.annotations)
+
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
