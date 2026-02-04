@@ -7,12 +7,16 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.example.qrsng.data.db.QrDatabase
+import com.example.qrsng.data.db.QrHistoryEntity
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
-import androidx.core.graphics.createBitmap
-import androidx.core.graphics.set
+import kotlinx.coroutines.launch
 
 class GenerateFragment : Fragment(R.layout.fragment_generate) {
 
@@ -29,6 +33,18 @@ class GenerateFragment : Fragment(R.layout.fragment_generate) {
                 val bitmap = generateQr(text)
                 imageView.setImageBitmap(bitmap)
                 imageView.visibility = View.VISIBLE
+
+                // 👉 SAVE TO HISTORY
+                lifecycleScope.launch {
+                    QrDatabase.getInstance(requireContext())
+                        .historyDao()
+                        .insert(
+                            QrHistoryEntity(
+                                content = text,
+                                type = "GENERATE"
+                            )
+                        )
+                }
             }
         }
     }

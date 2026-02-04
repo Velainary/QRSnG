@@ -1,9 +1,29 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
-    <style name="Base.Theme.QRSnG" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Theme.QRSNG" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- Primary -->
+        <item name="colorPrimary">@color/pine_teal</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/blue_slate</item>
+        <item name="colorOnSecondary">@android:color/white</item>
+
+        <!-- Background & Surface -->
+        <item name="colorSurface">@color/surface_light</item>
+        <item name="colorOnSurface">@color/ink_black</item>
+
+        <!-- Accent -->
+        <item name="colorOutline">@color/blue_slate</item>
+
+        <!-- System -->
+        <item name="android:statusBarColor">@color/ink_black</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+    </style>
+    <style name="ShapeAppearance.App.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">16dp</item>
     </style>
 
-    <style name="Theme.QRSnG" parent="Base.Theme.QRSnG" />
 </resources>

@@ -17,6 +17,15 @@
         <action
             android:id="@+id/action_home_to_generate"
             app:destination="@id/generateFragment" />
+
+        <action
+            android:id="@+id/action_home_to_history"
+            app:destination="@id/historyFragment" />
+
+        <action
+            android:id="@+id/action_home_to_settings"
+            app:destination="@id/settingsFragment" />
+
     </fragment>
 
 
@@ -29,5 +38,15 @@
         android:id="@+id/generateFragment"
         android:name="com.example.qrsng.GenerateFragment"
         android:label="Generate QR" />
+
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.example.qrsng.ui.history.HistoryFragment"
+        android:label="History" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.qrsng.ui.settings.SettingsFragment"
+        android:label="Settings" />
 
 </navigation>
