@@ -9,6 +9,7 @@ import com.example.qrsng.R
 import com.example.qrsng.data.db.QrDatabase
 import com.example.qrsng.databinding.FragmentSettingsBinding
 import kotlinx.coroutines.launch
+import androidx.core.content.edit
 
 class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
@@ -31,11 +32,11 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         // Save toggles
         binding.switchCopy.setOnCheckedChangeListener { _, value ->
-            prefs.edit().putBoolean("auto_copy", value).apply()
+            prefs.edit { putBoolean("auto_copy", value) }
         }
 
         binding.switchVibrate.setOnCheckedChangeListener { _, value ->
-            prefs.edit().putBoolean("vibrate", value).apply()
+            prefs.edit { putBoolean("vibrate", value) }
         }
 
         // Clear history

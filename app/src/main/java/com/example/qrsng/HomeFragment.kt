@@ -26,14 +26,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 .navigate(R.id.action_home_to_generate)
         }
 
-        binding.btnHistory.setOnClickListener {
-            findNavController().navigate(R.id.action_home_to_history)
-        }
-
-        binding.btnSettings.setOnClickListener {
-            findNavController().navigate(R.id.action_home_to_settings)
-        }
-
     }
 
     override fun onDestroyView() {
