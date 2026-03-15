@@ -16,7 +16,9 @@ import com.example.qrsng.data.db.QrHistoryEntity
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.common.BitMatrix
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GenerateFragment : Fragment(R.layout.fragment_generate) {
 
@@ -26,16 +28,26 @@ class GenerateFragment : Fragment(R.layout.fragment_generate) {
         val input = view.findViewById<EditText>(R.id.inputText)
         val button = view.findViewById<Button>(R.id.generateBtn)
         val imageView = view.findViewById<ImageView>(R.id.qrImage)
+        val qrCard = view.findViewById<View>(R.id.qrCard)
 
         button.setOnClickListener {
-            val text = input.text.toString()
-            if (text.isNotBlank()) {
-                val bitmap = generateQr(text)
-                imageView.setImageBitmap(bitmap)
-                imageView.visibility = View.VISIBLE
 
-                // 👉 SAVE TO HISTORY
-                lifecycleScope.launch {
+            val text = input.text.toString()
+            if (text.isBlank()) return@setOnClickListener
+
+            lifecycleScope.launch {
+
+                // Generate QR on background thread
+                val bitmap = withContext(Dispatchers.IO) {
+                    generateQr(text)
+                }
+
+                // Update UI on main thread
+                imageView.setImageBitmap(bitmap)
+                qrCard.visibility = View.VISIBLE
+
+                // Save to history on background thread
+                withContext(Dispatchers.IO) {
                     QrDatabase.getInstance(requireContext())
                         .historyDao()
                         .insert(
@@ -55,11 +67,13 @@ class GenerateFragment : Fragment(R.layout.fragment_generate) {
             MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, size, size)
 
         val bitmap = createBitmap(size, size, Bitmap.Config.RGB_565)
+
         for (x in 0 until size) {
             for (y in 0 until size) {
                 bitmap[x, y] = if (bitMatrix[x, y]) Color.BLACK else Color.WHITE
             }
         }
+
         return bitmap
     }
 }
