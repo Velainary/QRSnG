@@ -267,12 +267,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [AndroidX](https://developer.android.com/jetpack/androidx) libraries
 - [Material Design](https://material.io/design) for UI inspiration
 
-## 📞 Support
-
-If you have any questions or issues:
-- Open an [issue](https://github.com/your-username/akef-qr-utilities/issues) on GitHub
-- Check the [documentation](https://github.com/your-username/akef-qr-utilities/wiki) for more details
-
 ---
 
 **Made with ❤️ for the Android community**
